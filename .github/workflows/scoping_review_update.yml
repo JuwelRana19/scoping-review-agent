@@ -1,0 +1,51 @@
+name: Scoping review auto-update
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 10 * * *" # daily 10:00 UTC
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r scoping_review_agent/requirements.txt
+
+      - name: Write config.yaml from secret
+        run: |
+          mkdir -p scoping_review_agent/runtime
+          printf "%s" "${{ secrets.SCOPING_AGENT_CONFIG_YAML }}" > scoping_review_agent/runtime/config.yaml
+
+      - name: Run pipeline
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python scoping_review_agent/run_pipeline.py --config scoping_review_agent/runtime/config.yaml
+
+      - name: Commit outputs
+        run: |
+          git status
+          git add outputs/ || true
+          git add scoping_review_agent/runtime/ || true
+          git diff --cached --quiet && echo "No changes to commit." && exit 0
+          git commit -m "Auto-update scoping review outputs"
+          git push
+

@@ -1,0 +1,32 @@
+version: 1
+
+pdf_acquisition:
+  zotero_storage_folder: "D:/OneDrive - SAIST Foundation/Education/Reading Materials/storage"
+  try_download_when_missing: true
+  allowed_domains: []
+
+screening:
+  objective_text: "PASTE YOUR RESEARCH OBJECTIVE HERE"
+  include_keywords: []
+  exclude_keywords: []
+
+extraction:
+  require_evidence_quotes: true
+  retry_on_quality_issues: true
+  max_retries: 1
+  confidence_min: 0.3
+  chunk:
+    max_chars: 6000
+    overlap_chars: 800
+    top_k_chunks: 8
+
+llm:
+  provider: "ollama"
+  model: "llama3.1:8b-instruct-q4_K_M"
+  api_key_env: "OLLAMA_DUMMY"
+  temperature: 0.2
+
+outputs:
+  output_dir: "outputs/scoping_review_run_YYYYMMDD_HHMMSS"
+  state_file: "state.json"
+

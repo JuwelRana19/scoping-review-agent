@@ -1,0 +1,6 @@
+requests
+pyyaml
+pandas
+python-docx
+pypdf
+

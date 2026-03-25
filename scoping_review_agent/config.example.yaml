@@ -1,0 +1,50 @@
+version: 1
+
+# Candidate ingestion is controlled per-objective via `objectives.yaml`.
+# (The config primarily holds LLM + PDF acquisition + output settings.)
+
+# Local PDF behavior.
+pdf_acquisition:
+  zotero_storage_folder: "C:/path/to/Zotero/storage"
+  # If true, attempt DOI/PubMed-based downloads when local PDF not found.
+  try_download_when_missing: true
+  # Optional: restrict to certain publishers (blank means no restriction).
+  allowed_domains: []
+
+screening:
+  objective_text: "PASTE YOUR RESEARCH OBJECTIVE HERE"
+  # If set, agent may use this heuristic before/alongside the LLM.
+  include_keywords: []
+  exclude_keywords: []
+
+extraction:
+  # If true, require evidence quotes and confidence for each required field.
+  require_evidence_quotes: true
+  # If extraction looks incomplete, optionally attempt one retry with guidance.
+  retry_on_quality_issues: true
+  max_retries: 1
+  confidence_min: 0.3
+  # Chunking config for PDF retrieval.
+  chunk:
+    max_chars: 6000
+    overlap_chars: 800
+    top_k_chunks: 8
+
+llm:
+  # one of: openai | gemini | anthropic (claude) | ollama
+  provider: "openai"
+  # OpenAI examples: gpt-4.1-mini, gpt-4.1
+  # Gemini examples: gemini-1.5-flash, gemini-1.5-pro
+  # Claude examples: claude-3-5-sonnet-latest
+  model: "gpt-4.1-mini"
+  # This agent reads API key from this environment variable.
+  # Set to GEMINI_API_KEY when provider=gemini
+  # Set to ANTHROPIC_API_KEY when provider=anthropic
+  # For provider=ollama this value is ignored.
+  api_key_env: "OPENAI_API_KEY"
+  temperature: 0.2
+
+outputs:
+  output_dir: "outputs/scoping_review_run_YYYYMMDD_HHMMSS"
+  state_file: "state.json"
+

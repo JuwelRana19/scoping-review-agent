@@ -1,0 +1,25 @@
+objectives:
+  - objective_id: transportation_unequal_benefits
+    objective_text: "Do transportation emission interventions produce spatially unequal benefits, and are those inequalities socially patterned?"
+    # one of: pubmed_only | local_pdf_only | pubmed_plus_local_pdf
+    source_mode: pubmed_plus_local_pdf
+    # Optional local folder for manually uploaded PDFs (NotebookLM-like workflow)
+    # local_pdf_folder: "D:/OneDrive/path/to/inbox/objectives/transportation_unequal_benefits/pdfs"
+    # Optional: hints for both screening and PubMed candidate retrieval
+    keywords:
+      - transportation emissions
+      - air pollution
+      - spatial inequalities
+      - environmental justice
+      - equity
+      - intervention
+    # Preferred: if you have a PubMed search strategy string (Entrez query syntax), put it here.
+    # search_strategy: "(transport* OR emission* ...) AND (equity OR inequality ...)"
+
+    # Optional: instead of PubMed searching, you can provide the candidate set directly:
+    # candidate_pmids:
+    #   - "12345678"
+    #   - "87654321"
+    # candidate_dois:
+    #   - "10.1000/xyz123"
+

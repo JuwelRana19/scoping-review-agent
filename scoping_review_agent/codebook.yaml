@@ -1,0 +1,111 @@
+version: 1
+
+codebook_name: scoping_review_extraction
+
+# The agent should extract evidence-grounded content into this schema.
+extraction_schema:
+  required_fields:
+    - study_design
+    - research_objective
+    - key_findings
+    - strengths
+    - limitations
+    - future_research_agenda
+    - causal_or_epidemiologic_methods
+  field_definitions:
+    study_design:
+      type: string
+      required: true
+      rubric: >
+        Identify the study design and analytic approach at the level reported
+        in the paper (e.g., cohort, case-control, cross-sectional, RCT, quasi-experimental,
+        systematic review, scoping review, simulation model, etc.).
+    research_objective:
+      type: string
+      required: true
+      rubric: >
+        Provide the objective(s)/aim(s) as stated in the paper, and explicitly
+        link them to the user's research objective (even if only partially aligned).
+    causal_or_epidemiologic_methods:
+      type: string
+      required: true
+      rubric: >
+        Describe epidemiologic/causal methods used (e.g., mediation analysis,
+        g-formula, marginal structural models, DAG-based identification, WQS/BKMR,
+        confounding adjustment strategy, bias considerations, etc.). If the paper does not
+        use causal/epidemiologic methods explicitly, state "Not specified".
+    key_findings:
+      type: string
+      required: true
+      rubric: >
+        Summarize the most important results relevant to the research objective.
+        Include effect direction and main quantitative results when available.
+    strengths:
+      type: string
+      required: true
+      rubric: >
+        Extract methodological/empirical strengths (e.g., sample size, exposure measurement,
+        confounding control, causal identification strategy, validation, robustness checks).
+    limitations:
+      type: string
+      required: true
+      rubric: >
+        Extract methodological/empirical limitations (e.g., residual confounding,
+        measurement error, generalizability, missing data, model assumptions, causality threats).
+    future_research_agenda:
+      type: string
+      required: true
+      rubric: >
+        Extract what the authors recommend for future work, plus any additional gaps
+        that are directly supported by the paper.
+
+  evidence_requirements:
+    - field: study_design
+      quote_required: false
+    - field: research_objective
+      quote_required: true
+    - field: key_findings
+      quote_required: true
+    - field: strengths
+      quote_required: false
+    - field: limitations
+      quote_required: false
+    - field: future_research_agenda
+      quote_required: false
+
+# For incremental updates, screening decisions should be auditable.
+screening_schema:
+  decisions:
+    - include
+    - exclude
+    - uncertain
+  decision_rubric:
+    include: >
+      The study is clearly relevant to your research objective and reports
+      sufficient information to extract study design and findings.
+    exclude: >
+      The study is not relevant to your research objective (wrong exposure/population/outcome),
+      or does not report extractable information (e.g., purely narrative without results)
+      based on available abstract/metadata.
+    uncertain: >
+      The title/abstract/metadata are insufficient to decide; the paper may still be relevant.
+  evidence_snippet_requirement: true
+
+prompting:
+  screening_prompt_instructions: |
+    You are assisting with a scoping review. Use ONLY the provided evidence (title/abstract/metadata and optionally
+    retrieved PDF text excerpts) to decide inclusion.
+    Output strict JSON with:
+    - decision: include|exclude|uncertain
+    - reasons: short list
+    - evidence_snippet: the exact supporting text (1-3 sentences) from provided input
+    - objective_alignment_tags: array of short tags describing how it matches the user's research objective
+  extraction_prompt_instructions: |
+    You are extracting data from a peer-reviewed article for a scoping review.
+    Use ONLY the provided retrieved text excerpts. Do not guess.
+    Output strict JSON matching the extraction_schema fields.
+    For each required field:
+    - provide a concise answer
+    - include evidence_quotes where available (short excerpt + citation locator like section/paragraph/page if known)
+    - include confidence_score as a number 0-1
+
