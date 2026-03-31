@@ -91,10 +91,10 @@ def build_screening_user_prompt(
         f"{objective_text}\n\n"
         + keyword_section
         + strategy_section
-        "Candidate study evidence (for screening):\n"
+        + "Candidate study evidence (for screening):\n"
         + "\n".join(evidence_parts)
         + "\n\n"
-        "Decide if this study should be INCLUDED in the scoping review relative to the objective."
-        " Output strict JSON with keys: decision, reasons, evidence_snippet, objective_alignment_tags."
+        + "Decide if this study should be INCLUDED in the scoping review relative to the objective."
+        + " Output strict JSON with keys: decision, reasons, evidence_snippet, objective_alignment_tags."
     )
 

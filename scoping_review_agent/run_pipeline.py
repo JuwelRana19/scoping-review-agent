@@ -4,9 +4,13 @@ import argparse
 import hashlib
 import os
 import re
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict
+
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from scoping_review_agent.src.config import AgentConfig
 from scoping_review_agent.src.ingestion.pubmed_source import ingest_candidates_for_objective

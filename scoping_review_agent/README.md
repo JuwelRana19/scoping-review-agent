@@ -36,11 +36,13 @@ Ready provider configs are available in `configs/`:
 
 After that, run the pipeline:
 - `python scoping_review_agent/run_pipeline.py --config scoping_review_agent/config.yaml`
+- Or from the repo root: `python -m scoping_review_agent.run_pipeline --config scoping_review_agent/config.yaml`
 
 ### Multi-objective run
 1. Create `objectives.yaml` (see `objectives.example.yaml`)
 2. Run:
    - `python scoping_review_agent/run_pipeline.py --config scoping_review_agent/config.yaml --objectives_file scoping_review_agent/objectives.yaml`
+   - Or from the repo root: `python -m scoping_review_agent.run_pipeline --config scoping_review_agent/config.yaml --objectives_file scoping_review_agent/objectives.yaml`
 
 Per objective, you can choose:
 - `source_mode: pubmed_only`
@@ -77,6 +79,7 @@ Then the workflow in `.github/workflows/scoping_review_update.yml` runs daily an
 4. Set `llm.provider`, `llm.model`, `llm.api_key_env` in `config.yaml`.
 5. Run:
    - `python scoping_review_agent/run_pipeline.py --config scoping_review_agent/config.yaml --objectives_file scoping_review_agent/objectives.yaml`
+   - Or from the repo root: `python -m scoping_review_agent.run_pipeline --config scoping_review_agent/config.yaml --objectives_file scoping_review_agent/objectives.yaml`
 
 ## No external API key option (Ollama)
 You can run fully local with Ollama:

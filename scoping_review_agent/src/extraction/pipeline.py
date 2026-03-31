@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import os
 from pathlib import Path
 from typing import Any, Dict, List
@@ -10,6 +11,25 @@ from scoping_review_agent.src.extraction.extract import extract_paper_fields, lo
 from scoping_review_agent.src.pdf_parsing.parse import parse_pdf_to_pages_and_chunks
 from scoping_review_agent.src.quality.validate import quality_check_extraction
 from scoping_review_agent.src.utils.io import ensure_dir, read_jsonl, read_json, write_json, write_jsonl
+
+
+def _sanitize_windows_filename(value: str) -> str:
+    """
+    Windows filenames cannot contain: < > : " / \\ | ? *
+    Colons in particular may be interpreted as alternate data streams (ADS),
+    so we replace them to avoid FileNotFoundError.
+    """
+    unsafe_chars = set('<>:"/\\|?*')
+    return "".join("_" if ch in unsafe_chars else ch for ch in value)
+
+
+def _short_cache_filename(*parts: str) -> str:
+    """
+    Use a short, Windows-safe cache filename to avoid MAX_PATH issues.
+    """
+    key = "__".join([p for p in parts if p])
+    digest = hashlib.sha1(key.encode("utf-8")).hexdigest()
+    return f"{digest}.json"
 
 
 def extract_from_pdfs(
@@ -90,7 +110,8 @@ def extract_from_pdfs(
         )
         file_hash = str(parsed.get("file_hash") or "")
 
-        cache_key_path = extraction_cache_dir / f"{paper_id}__{file_hash}.json"
+        # Cache path must be Windows-safe and short (avoid ':' and long paths).
+        cache_key_path = extraction_cache_dir / _short_cache_filename(paper_id, file_hash)
         if cache_key_path.exists():
             try:
                 cached_row = read_json(cache_key_path)

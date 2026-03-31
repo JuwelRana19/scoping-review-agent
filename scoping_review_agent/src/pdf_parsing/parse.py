@@ -41,6 +41,16 @@ def _chunk_text(text: str, *, max_chars: int, overlap_chars: int) -> List[Tuple[
     return chunks
 
 
+def _sanitize_windows_filename(value: str) -> str:
+    """
+    Windows filenames cannot contain: < > : " / \\ | ? *
+    Colons in particular may be interpreted as alternate data streams (ADS),
+    so we replace them to avoid cache write/read issues.
+    """
+    unsafe_chars = set('<>:"/\\|?*')
+    return "".join("_" if ch in unsafe_chars else ch for ch in value)
+
+
 def extract_pdf_pages(pdf_path: str | Path) -> List[Dict[str, Any]]:
     """
     Extract text per page with page numbers.
@@ -106,9 +116,10 @@ def parse_pdf_to_pages_and_chunks(
     file_hash = _sha1_file(pdf_path)
     key = f"{paper_id}__{file_hash}"
 
-    pages_cache = cache_dir / f"{paper_id}__pages.json"
-    chunks_cache = cache_dir / f"{paper_id}__chunks.json"
-    meta_cache = cache_dir / f"{paper_id}__meta.json"
+    safe_paper_id = _sanitize_windows_filename(paper_id)
+    pages_cache = cache_dir / f"{safe_paper_id}__pages.json"
+    chunks_cache = cache_dir / f"{safe_paper_id}__chunks.json"
+    meta_cache = cache_dir / f"{safe_paper_id}__meta.json"
 
     if pages_cache.exists() and chunks_cache.exists() and meta_cache.exists():
         try:

@@ -3,12 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, List
 
-from docx import Document
-
 from scoping_review_agent.src.utils.io import ensure_dir, read_jsonl
 
 
-def _add_field(doc: Document, field_name: str, value: Any, evidence_quotes: Dict[str, Any]) -> None:
+def _add_field(doc: Any, field_name: str, value: Any, evidence_quotes: Dict[str, Any]) -> None:
     doc.add_heading(field_name.replace("_", " ").title(), level=3)
     val = "" if value is None else str(value)
     if not val.strip():
@@ -39,6 +37,8 @@ def export_word_document(
     output_dir: str | Path,
     title: str = "Scoping review extraction (human review)",
 ) -> Path:
+    from docx import Document
+
     output_dir = Path(output_dir)
     ensure_dir(output_dir)
     rows = read_jsonl(extractions_jsonl_path)

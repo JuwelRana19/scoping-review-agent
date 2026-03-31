@@ -14,11 +14,17 @@ def read_json(path: str | Path) -> Any:
 
 def write_json(path: str | Path, obj: Any) -> None:
     p = Path(path)
+    # Ensure parent folder exists (prevents FileNotFoundError on new output runs).
+    if p.parent and p.parent != Path("."):
+        p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(obj, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
 def write_jsonl(path: str | Path, rows: Iterable[Dict[str, Any]]) -> None:
     p = Path(path)
+    # Ensure parent folder exists (prevents FileNotFoundError on new output runs).
+    if p.parent and p.parent != Path("."):
+        p.parent.mkdir(parents=True, exist_ok=True)
     with p.open("w", encoding="utf-8") as f:
         for row in rows:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")

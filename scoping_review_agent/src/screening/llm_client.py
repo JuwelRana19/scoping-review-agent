@@ -134,6 +134,12 @@ def llm_text_call(
         # OLLAMA_HOST can override default local endpoint.
         base = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").rstrip("/")
         url = f"{base}/api/chat"
+        # Local models can be slow on first run / long PDFs. Allow override via env var.
+        # Defaults to 30 minutes.
+        try:
+            timeout_sec = int(os.environ.get("OLLAMA_TIMEOUT_SEC", "1800"))
+        except Exception:
+            timeout_sec = 1800
         payload = {
             "model": model,
             "stream": False,
@@ -143,7 +149,7 @@ def llm_text_call(
                 {"role": "user", "content": user_prompt},
             ],
         }
-        r = requests.post(url, json=payload, timeout=300)
+        r = requests.post(url, json=payload, timeout=timeout_sec)
         r.raise_for_status()
         data = r.json()
         msg = data.get("message") or {}
