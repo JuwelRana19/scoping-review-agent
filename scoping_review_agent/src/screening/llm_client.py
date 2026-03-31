@@ -15,14 +15,14 @@ def extract_first_json_object(text: str) -> Optional[Dict[str, Any]]:
     if not text:
         return None
     # Try fenced JSON first.
-    m = re.search(r"```json\\s*(\\{.*?\\})\\s*```", text, flags=re.DOTALL | re.IGNORECASE)
+    m = re.search(r"```json\s*(\{.*?\})\s*```", text, flags=re.DOTALL | re.IGNORECASE)
     if m:
         try:
             return json.loads(m.group(1))
         except Exception:
             pass
     # Fallback: first {...}
-    m = re.search(r"(\\{.*\\})", text, flags=re.DOTALL)
+    m = re.search(r"(\{.*\})", text, flags=re.DOTALL)
     if not m:
         return None
     try:
@@ -156,4 +156,3 @@ def llm_text_call(
         return msg.get("content", "") or ""
 
     raise ValueError(f"Unsupported llm.provider: {provider}")
-

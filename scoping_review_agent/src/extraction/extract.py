@@ -23,6 +23,55 @@ DEFAULT_REQUIRED_FIELDS = [
 ]
 
 
+def _stringify_field_value(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value.strip()
+    if isinstance(value, list):
+        parts: List[str] = []
+        for item in value:
+            if isinstance(item, str):
+                s = item.strip()
+                if s:
+                    parts.append(s)
+            elif isinstance(item, dict):
+                s = str(item.get("text") or item.get("quote") or "").strip()
+                if s:
+                    parts.append(s)
+        return " ".join(parts).strip()
+    if isinstance(value, dict):
+        return str(value.get("text") or "").strip()
+    return str(value).strip()
+
+
+def _quotes_from_field_value(value: Any) -> List[Dict[str, str]]:
+    quotes: List[Dict[str, str]] = []
+    if isinstance(value, list):
+        for item in value:
+            if isinstance(item, dict):
+                quote = str(item.get("text") or item.get("quote") or "").strip()
+                locator = str(item.get("citation_locator") or item.get("locator") or "").strip()
+                if quote:
+                    quotes.append(
+                        {
+                            "quote": quote,
+                            "citation_locator": locator,
+                        }
+                    )
+    elif isinstance(value, dict):
+        quote = str(value.get("text") or value.get("quote") or "").strip()
+        locator = str(value.get("citation_locator") or value.get("locator") or "").strip()
+        if quote:
+            quotes.append(
+                {
+                    "quote": quote,
+                    "citation_locator": locator,
+                }
+            )
+    return quotes
+
+
 def load_codebook(codebook_path: str | Path) -> Dict[str, Any]:
     p = Path(codebook_path)
     return yaml.safe_load(p.read_text(encoding="utf-8"))
@@ -174,11 +223,21 @@ def extract_paper_fields(
         api_key_env=api_key_env,
     )
     # Ensure required keys exist.
+    evidence_quotes = parsed.get("evidence_quotes")
+    if not isinstance(evidence_quotes, dict):
+        evidence_quotes = {}
+
     for k in ["study_design", "research_objective", "causal_or_epidemiologic_methods", "key_findings", "strengths", "limitations", "future_research_agenda"]:
         if k not in parsed:
             parsed[k] = ""
-    if "evidence_quotes" not in parsed:
-        parsed["evidence_quotes"] = {}
+        else:
+            raw_value = parsed.get(k)
+            parsed[k] = _stringify_field_value(raw_value)
+            if k not in evidence_quotes:
+                inferred_quotes = _quotes_from_field_value(raw_value)
+                if inferred_quotes:
+                    evidence_quotes[k] = inferred_quotes
+    parsed["evidence_quotes"] = evidence_quotes
     if "confidence_score" not in parsed:
         parsed["confidence_score"] = 0.2
     return parsed
